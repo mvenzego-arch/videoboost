@@ -1,0 +1,12 @@
+version: 2
+updates:
+  # Автообновление версий Actions-расширений
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  # Слежение за pip-зависимостями проекта (сейчас stdlib, точка контроля на будущее)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "monthly"
