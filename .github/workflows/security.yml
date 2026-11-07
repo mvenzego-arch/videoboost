@@ -16,7 +16,7 @@ jobs:
     # Guard на шаге: hashFiles нельзя в job-level if (Actions отказывается запускать job).
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Detect C# tree
         id: guard
         shell: bash
