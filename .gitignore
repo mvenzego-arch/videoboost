@@ -14,6 +14,15 @@ logs/
 *.exe
 *.exe.bak
 
+## Питон-остатки (legacy-эра)
+__pycache__/
+
+## Сгенерированное
+output/
+
+## Runtime-настройки (пишутся на ходу)
+ui_settings.json
+
 ## Окружение
 .opencode/
 Thumbs.db
