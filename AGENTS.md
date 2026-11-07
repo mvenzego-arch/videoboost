@@ -35,6 +35,25 @@
 `screenshot` → `vision-triage` (описание дословно) → `debugger` (диагноз с доказательством)
 → точечный фикс (`winui-dev`/`engine-dev`) → регресс-тест xUnit → ревью.
 
+## Расширенная команда качества (20 агентов)
+
+Каждолый блок вызывается, когда его зона тронута — не все сразу:
+
+| Фаза конвейера | Агенты качества |
+|---|---|
+| После правок XAML (`ui-dev`) | `xaml-linter` + `a11y-auditor` + `l10n-keeper` + `ui-motion-keeper` (параллельно) |
+| После правок движка (`engine-dev`) | `process-doctor` + `cancellation-cop` + `temp-custodian` + `flag-scribe` + `contract-guardian` (параллельно) |
+| Вёрстка закрыла экран | `memory-warden` + `boot-guardian` |
+| Тесты | `fixture-alchemist` — до test-writer; `flaky-hunter` — после qa-runner |
+| Каждая обрабатывающая фича | `video-fidelity-auditor` — после зелёного suite |
+| Миграция/фич-финал | `parity-auditor` — сверка с веткой legacy-python |
+| Перед выкладкой версии | `security-scout` + `dependency-curator` + `bench-runner` (вместе с release-keeper) |
+| После любого фикса ошибок | `error-prose` — текст ошибки юзеру (согласн. l10n/ui-copywriter) |
+| Медленные сборки/изменений време-зон | `csharp-warden` — гигиена стиля после больших диффов |
+
+Правило порогов: замечания severity ≥ major блокируют передачу следующему агенту;
+minor — допускаются с записью в отчёте; nit — по желанию.
+
 ## Жёсткие правила (для всех агентов)
 
 - **Стек зафиксирован решением владельца: C# .NET 8 + WinUI3.** Возврат на Python,
