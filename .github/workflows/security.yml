@@ -12,18 +12,30 @@ permissions:
 
 jobs:
   analyze:
-    # CodeQL: статический анализ C# (SAST) — бесплатен для публичного репозитория
-    if: ${{ hashFiles('**/*.sln') != '' }}
+    # CodeQL: статический анализ C# (SAST) — бесплатен для публичного репозитория.
+    # Guard на шаге: hashFiles нельзя в job-level if (Actions отказывается запускать job).
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Detect C# tree
+        id: guard
+        shell: bash
+        run: |
+          if ! ls src/VideoBoost.App/VideoBoost.App.csproj >/dev/null 2>&1; then
+            echo "::notice::csproj не найден — CodeQL пропущен (это не красный статус причины C#-структуры нет)"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-dotnet@v4
+        if: steps.guard.outputs.skip != 'true'
         with:
           dotnet-version: '8.0.x'
       - uses: github/codeql-action/init@v3
+        if: steps.guard.outputs.skip != 'true'
         with:
           languages: csharp
       - uses: github/codeql-action/autobuild@v3
+        if: steps.guard.outputs.skip != 'true'
       - uses: github/codeql-action/analyze@v3
+        if: steps.guard.outputs.skip != 'true'
         with:
           category: '/language:csharp'

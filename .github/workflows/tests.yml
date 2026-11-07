@@ -2,12 +2,13 @@ name: tests
 on:
   push:
     branches: [master]
+    paths: ['src/**', 'tests/**', 'VideoBoost.sln', '.github/workflows/**']
   pull_request:
+    paths: ['src/**', 'tests/**', 'VideoBoost.sln', '.github/workflows/**']
 
 jobs:
   dotnet-test:
     # Раннер Windows: WinUI3-проект (Windows App SDK) собирается только там.
-    if: ${{ hashFiles('**/*.sln') != '' }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,7 +16,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Restore
-        run: dotnet restore VideoBoost.sln /p:Platform=x64
+        run: dotnet restore VideoBoost.sln
       - name: Build (0 warnings — правило агентов)
         run: dotnet build VideoBoost.sln -c Release --no-restore
       - name: Test (xUnit)

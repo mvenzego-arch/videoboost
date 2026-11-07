@@ -8,27 +8,38 @@ permissions:
 
 jobs:
   build:
-    # Только C#-эра: на ветке legacy-python csproj нет — режим наблюдения
-    if: ${{ hashFiles('src/**/*.csproj') != '' }}
+    # Тег палит только C#-эпоху; метки legacy-ветки сворачиваются замечанием.
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - name: Detect C# tree
+        id: guard
+        shell: bash
+        run: |
+          if ! ls src/VideoBoost.App/VideoBoost.App.csproj >/dev/null 2>&1; then
+            echo "::notice::csproj не найден — легаси-метка, упаковка пропущена"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Publish (self-contained, без зависимостей у пользователя)
+        if: steps.guard.outputs.skip != 'true'
         run: >
           dotnet publish src/VideoBoost.App/VideoBoost.App.csproj
           -c Release -r win-x64 /p:Platform=x64 --self-contained true
           /p:WindowsAppSDKSelfContained=true -o publish/
       - name: Package
+        if: steps.guard.outputs.skip != 'true'
         run: Compress-Archive -Path publish/* -DestinationPath VideoBoost-win-x64.zip -Force
       - name: Upload artifact
+        if: steps.guard.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: VideoBoost-win-x64
           path: VideoBoost-win-x64.zip
       - name: Attach to GitHub Release
+        if: steps.guard.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
           files: VideoBoost-win-x64.zip
