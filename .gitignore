@@ -1,18 +1,19 @@
-temp/
-logs/
-__pycache__/
-.opencode/
-tools/
-build/
-dist/
-*.exe
-*.pyc
-_baseline/
-ui_settings.json
-
-# .NET / C#
+## .NET / WinUI3 v3
 bin/
 obj/
-publish/
-*.user
 .vs/
+*.user
+*.suo
+publish/
+app_publish/
+
+## VideoBoost runtime (скачивается на ходу, не в репо)
+tools/
+temp/
+logs/
+*.exe
+*.exe.bak
+
+## Окружение
+.opencode/
+Thumbs.db

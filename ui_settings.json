@@ -1,0 +1,13 @@
+{
+  "preset": "balanced",
+  "content": "general",
+  "interpolate": true,
+  "save_space": true,
+  "scale": "x2",
+  "model": "auto",
+  "fps": "60",
+  "encoder": "preset",
+  "quality": "preset",
+  "tile": "preset",
+  "geometry": "960x780+410+8"
+}
