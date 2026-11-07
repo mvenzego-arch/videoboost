@@ -8,9 +8,10 @@ publish/
 app_publish/
 
 ## VideoBoost runtime (скачивается на ходу, не в репо)
-tools/
-temp/
-logs/
+## (якорь на корень репо: не глотать src/VideoBoost.Engine/Tools и др.)
+/tools/
+/temp/
+/logs/
 *.exe
 *.exe.bak
 
@@ -18,7 +19,7 @@ logs/
 __pycache__/
 
 ## Сгенерированное
-output/
+/output/
 
 ## Runtime-настройки (пишутся на ходу)
 ui_settings.json
