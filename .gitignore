@@ -9,3 +9,10 @@ dist/
 *.pyc
 _baseline/
 ui_settings.json
+
+# .NET / C#
+bin/
+obj/
+publish/
+*.user
+.vs/

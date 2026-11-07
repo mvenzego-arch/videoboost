@@ -3,28 +3,27 @@ on:
   push:
     branches: [master]
   pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
-  # SAST: подозрительные элементы в коде (shell, сеть, subprocess)
-  bandit:
-    runs-on: ubuntu-latest
-    continue-on-error: true
+  analyze:
+    # CodeQL: статический анализ C# (SAST) — бесплатен для публичного репозитория
+    if: ${{ hashFiles('**/*.sln') != '' }}
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-dotnet@v4
         with:
-          python-version: '3.12'
-      - run: pip install bandit
-      - run: bandit -r . -q --skip B101 --exclude .github,.opencode,tools,temp,logs,build,dist,__pycache__,_baseline
-
-  # Мёртвый код: неиспользуемые функции и классы
-  vulture:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+          dotnet-version: '8.0.x'
+      - uses: github/codeql-action/init@v3
         with:
-          python-version: '3.12'
-      - run: pip install vulture
-      - run: vulture main.py engine.py --min-confidence 80
+          languages: csharp
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:csharp'

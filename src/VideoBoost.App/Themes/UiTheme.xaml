@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Дизайн-токены «жидкое стекло». Только здесь; снаружи — по ключам. -->
+    <Color x:Key="VbBackdropColor">#070809</Color>
+    <Color x:Key="VbCardColor">#10141B</Color>
+    <Color x:Key="VbCardEdgeColor">#1C2333</Color>
+    <Color x:Key="VbAccentColor">#7C5CFF</Color>
+    <Color x:Key="VbCyanColor">#22D3EE</Color>
+    <Color x:Key="VbTextColor">#E8EEF8</Color>
+    <Color x:Key="VbMutedColor">#93A3BC</Color>
+
+    <SolidColorBrush x:Key="VbBackdropBrush" Color="{StaticResource VbBackdropColor}" />
+    <SolidColorBrush x:Key="VbCardBrush" Color="{StaticResource VbCardColor}" />
+    <SolidColorBrush x:Key="VbCardEdgeBrush" Color="{StaticResource VbCardEdgeColor}" />
+    <SolidColorBrush x:Key="VbAccentBrush" Color="{StaticResource VbAccentColor}" />
+    <SolidColorBrush x:Key="VbCyanBrush" Color="{StaticResource VbCyanColor}" />
+    <SolidColorBrush x:Key="VbTextBrush" Color="{StaticResource VbTextColor}" />
+    <SolidColorBrush x:Key="VbMutedBrush" Color="{StaticResource VbMutedColor}" />
+
+    <Thickness x:Key="VbCardPadding">16</Thickness>
+    <CornerRadius x:Key="VbCardRadius">12</CornerRadius>
+    <CornerRadius x:Key="VbPillRadius">9</CornerRadius>
+
+</ResourceDictionary>

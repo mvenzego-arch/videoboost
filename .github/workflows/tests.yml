@@ -5,25 +5,18 @@ on:
   pull_request:
 
 jobs:
-  unittest:
-    runs-on: ubuntu-latest
+  dotnet-test:
+    # Раннер Windows: WinUI3-проект (Windows App SDK) собирается только там.
+    if: ${{ hashFiles('**/*.sln') != '' }}
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-dotnet@v4
         with:
-          python-version: '3.10'
-      - name: Verify tkinter present (GUI suite)
-        id: tkcheck
-        continue-on-error: true
-        run: python -c "import tkinter"
-      - name: Run test suite
-        if: steps.tkcheck.outcome == 'success'
-        run: |
-          if [ ! -d tests ] || [ -z "$(ls -A tests 2>/dev/null)" ]; then
-            echo "::notice::Тестов пока нет — qa-runner их напишет"
-            exit 0
-          fi
-          python -m unittest discover tests -v
-      - name: Skip notice (no tkinter on runner)
-        if: steps.tkcheck.outcome != 'success'
-        run: echo "::notice::tkinter недоступен на раннере — GUI-тесты выполняются на машине разработки"
+          dotnet-version: '8.0.x'
+      - name: Restore
+        run: dotnet restore VideoBoost.sln /p:Platform=x64
+      - name: Build (0 warnings — правило агентов)
+        run: dotnet build VideoBoost.sln -c Release --no-restore
+      - name: Test (xUnit)
+        run: dotnet test VideoBoost.sln -c Release --no-build --verbosity normal

@@ -14,6 +14,7 @@ from pathlib import Path
 SKIP_DIRS = {
     ".git", ".github", ".opencode", "__pycache__", "temp", "tools",
     "logs", "_baseline", "node_modules", "build", "dist", "output",
+    "bin", "obj", "publish",
 }
 SKIP_FILES = {".gitignore", "ui_settings.json"}
 PALETTE = ["#4f8cff", "#7c5cff", "#22d3ee", "#34d399", "#fbbf24", "#f472b6"]

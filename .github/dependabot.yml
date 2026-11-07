@@ -5,7 +5,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-  # Слежение за pip-зависимостями проекта (сейчас stdlib, точка контроля на будущее)
+  # NuGet-зависимости C#-решения (WindowsAppSDK, xUnit, ...)
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  # Слежение за pip-зависимостями legacy-ветки (Python-эра закрыта, точка контроля на будущее)
   - package-ecosystem: "pip"
     directory: "/"
     schedule:

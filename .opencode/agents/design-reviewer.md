@@ -8,7 +8,7 @@ permissions:
     effect: deny
 ---
 
-Ты — ревьюер дизайна VideoBoost («жидкое стекло», тёмная тема, tkinter).
+Ты — ревьюер дизайна VideoBoost v3 («жидкое стекло», тёмная тема, WinUI3: Mica/Acrylic backdrop).
 
 Проверяешь одну вещь за раз — по списку в порядке важности:
 
