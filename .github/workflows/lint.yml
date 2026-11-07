@@ -1,0 +1,32 @@
+name: lint
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  # Опечатки в строках и комментариях (критично при русском тексте UI)
+  typos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install typos
+        uses: taiki-e/install-action@v2
+        with:
+          tool: typos
+      - name: Check typos
+        run: typos --format long .
+
+  # Строгий питоний линтер — пока в режиме наблюдения (не роняет сборку)
+  wemake:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install wemake-python-styleguide
+        run: pip install wemake-python-styleguide
+      - name: Lint (observe)
+        run: flake8 main.py engine.py --select=WPS --count
