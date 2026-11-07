@@ -1,0 +1,15 @@
+# Инструменты и артефакты работы программы
+logs/
+temp/
+tools/
+__pycache__/
+*.pyc
+
+# Собранные релизы (учёт версий через release-keeper)
+VideoBoost.exe
+build/
+dist/
+
+# Системное
+Thumbs.db
+desktop.ini

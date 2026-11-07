@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permissions": [
+    { "action": "edit", "resource": "tools/**", "effect": "deny" },
+    { "action": "edit", "resource": "VideoBoost.exe", "effect": "deny" },
+    { "action": "shell", "resource": "*pyinstaller*", "effect": "ask" },
+    { "action": "shell", "resource": "*Remove-Item*", "effect": "ask" },
+    { "action": "shell", "resource": "git push*", "effect": "ask" }
+  ]
+}
