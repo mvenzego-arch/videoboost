@@ -1,0 +1,31 @@
+name: visualize
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  visualize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Skip own commits (loop guard)
+        id: guard
+        run: |
+          LAST_AUTHOR=$(git log -1 --format='%an')
+          echo "skip=$([ "$LAST_AUTHOR" = "repo-bot" ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
+      - name: Build SVG map
+        if: steps.guard.outputs.skip != 'yes'
+        run: |
+          mkdir -p output
+          python .github/scripts/visualize.py > output/repository.svg
+      - name: Commit map
+        if: steps.guard.outputs.skip != 'yes'
+        run: |
+          git config user.name "repo-bot"
+          git config user.email "bot@local"
+          git add output/repository.svg
+          git diff --cached --quiet || { git commit -m "visualize: карта репозитория"; git push; }
