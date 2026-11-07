@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="VideoBoost.App.Views.Controls.DropVideoCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:VideoBoost.App.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid RowSpacing="8">
+        <Grid.RowDefinitions>
+            <!-- Пустое состояние: drop-зона занимает всё место; с файлами — полка 40 px. -->
+            <RowDefinition x:Name="DropRow" Height="*" />
+            <RowDefinition x:Name="ListRow" Height="0" />
+        </Grid.RowDefinitions>
+
+        <Border
+            x:Name="VideoDropTarget"
+            Grid.Row="0"
+            AllowDrop="True"
+            Style="{StaticResource DropZoneStyle}"
+            DragOver="VideoDropTarget_DragOver"
+            DragLeave="VideoDropTarget_DragLeave"
+            Drop="VideoDropTarget_Drop">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Пустое состояние: иконка + подсказка -->
+                <StackPanel
+                    x:Name="EmptyStatePanel"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="8"
+                    MaxWidth="420">
+                    <FontIcon
+                        Glyph="&#xE714;"
+                        FontSize="32"
+                        Foreground="{ThemeResource VbMutedBrush}" />
+                    <TextBlock
+                        x:Name="DropHintText"
+                        Text="Перетащите видео сюда… или нажмите Добавить"
+                        Style="{StaticResource VbCaptionStyle}"
+                        FontSize="14"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+
+                <!-- Полка добавления: одна и та же кнопка в обоих состояниях -->
+                <Grid Grid.Row="1" ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button
+                        x:Name="AddVideosButton"
+                        Grid.Column="0"
+                        Style="{StaticResource VbSecondaryButtonStyle}"
+                        Click="AddVideosButton_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE710;" FontSize="12" />
+                            <TextBlock Text="Добавить видео" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button
+                        x:Name="RemoveVideosButton"
+                        Grid.Column="1"
+                        Content="Удалить выбранное"
+                        Style="{StaticResource VbSecondaryButtonStyle}"
+                        IsEnabled="False"
+                        Click="RemoveVideosButton_Click" />
+
+                    <Button
+                        x:Name="ClearVideosButton"
+                        Grid.Column="2"
+                        Content="Очистить"
+                        Style="{StaticResource VbSecondaryButtonStyle}"
+                        IsEnabled="False"
+                        Click="ClearVideosButton_Click" />
+
+                    <TextBlock
+                        x:Name="FilesCountText"
+                        Grid.Column="4"
+                        Text="Видео не выбраны"
+                        Style="{StaticResource VbCaptionStyle}"
+                        VerticalAlignment="Center" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <ListView
+            x:Name="VideoList"
+            Grid.Row="1"
+            Visibility="Collapsed"
+            SelectionMode="Extended"
+            IsItemClickEnabled="False"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            SelectionChanged="VideoList_SelectionChanged">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="controls:VideoItem">
+                    <Grid ColumnSpacing="8" Margin="0,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <FontIcon
+                            Grid.Column="0"
+                            Glyph="&#xE714;"
+                            FontSize="16"
+                            VerticalAlignment="Center"
+                            Foreground="{ThemeResource VbMutedBrush}" />
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock
+                                Text="{x:Bind Name}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind FullPath}"
+                                Style="{StaticResource VbSectionTitleStyle}" />
+                            <TextBlock
+                                Text="{x:Bind Folder}"
+                                TextTrimming="CharacterEllipsis"
+                                Style="{StaticResource VbCaptionStyle}" />
+                        </StackPanel>
+
+                        <Button
+                            Grid.Column="2"
+                            Style="{StaticResource VbIconButtonStyle}"
+                            VerticalAlignment="Center"
+                            ToolTipService.ToolTip="Удалить из списка"
+                            Click="RemoveItem_Click">
+                            <FontIcon Glyph="&#xE74D;" FontSize="12" />
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</UserControl>

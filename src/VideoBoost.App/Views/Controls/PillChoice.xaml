@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="VideoBoost.App.Views.Controls.PillChoice"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:local="using:VideoBoost.App.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="PillItemTemplate" x:DataType="local:PillItem">
+            <StackPanel
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                MinHeight="{x:Bind MinContentHeight}">
+                <TextBlock
+                    Text="{x:Bind Text}"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Text="{x:Bind Caption}"
+                    Visibility="{x:Bind CaptionVisibility}"
+                    FontSize="12"
+                    FontWeight="Normal"
+                    Opacity="0.8"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <!--
+        Единая обёртка над CommunityToolkit Segmented (§2). Chip-стиль — PillItemStyle.
+        Ширина по контенту; для пресетов Stretch=True, чтобы три пилюли делили ширину карточки.
+    -->
+    <controls:Segmented
+        x:Name="SegmentedHost"
+        Background="Transparent"
+        BorderThickness="0"
+        Padding="0"
+        CornerRadius="8"
+        HorizontalAlignment="Left"
+        SelectionMode="Single"
+        IsTabStop="False"
+        ItemsSource="{x:Bind Items, Mode=OneWay}"
+        SelectedIndex="{x:Bind SelectedIndex, Mode=TwoWay}"
+        ItemTemplate="{StaticResource PillItemTemplate}"
+        ItemContainerStyle="{StaticResource PillItemStyle}"
+        SelectionChanged="SegmentedHost_SelectionChanged" />
+</UserControl>

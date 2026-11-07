@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="VideoBoost.App.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:VideoBoost.App.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="VideoBoost — улучшение видео и плавности"
+    mc:Ignorable="d">
+
+    <!--
+        Каркас окна v3.1: титлбар 44 / InfoBar Auto / тело * / журнал Auto / полоса Auto.
+        Фон — VbBackdropBrush (fallback, если Mica недоступна); при Mica RootGrid прозрачный.
+    -->
+    <Grid x:Name="RootGrid" Background="{ThemeResource VbBackdropBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="44" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Key="Enter" Invoked="StartAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Escape" Invoked="CancelAccelerator_Invoked" />
+        </Grid.KeyboardAccelerators>
+
+        <!-- ==================== Титлбар (§8) ==================== -->
+        <Grid x:Name="AppTitleGrid" Grid.Row="0" ColumnSpacing="8" Margin="16,0,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Image
+                x:Name="AppIcon"
+                Width="20"
+                Height="20"
+                VerticalAlignment="Center"
+                Source="ms-appx:///Assets/video_boost.ico" />
+
+            <TextBlock
+                x:Name="AppTitleText"
+                Grid.Column="1"
+                Text="VideoBoost"
+                Style="{StaticResource VbTitleStyle}"
+                VerticalAlignment="Center" />
+
+            <TextBlock
+                x:Name="AppSubtitleText"
+                Grid.Column="2"
+                Text="улучшение видео и плавности"
+                Style="{StaticResource VbCaptionStyle}"
+                Margin="4,2,0,0"
+                VerticalAlignment="Center"
+                TextTrimming="CharacterEllipsis" />
+        </Grid>
+
+        <!-- ==================== Уведомления ==================== -->
+        <InfoBar
+            x:Name="NotificationBar"
+            Grid.Row="1"
+            Margin="16,8,16,0"
+            IsOpen="False"
+            Severity="Informational"
+            IsClosable="True" />
+
+        <!-- ==================== Тело: 58/42 ==================== -->
+        <Grid
+            x:Name="BodyGrid"
+            Grid.Row="2"
+            Margin="16,12,16,0"
+            ColumnSpacing="12"
+            RowSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="58*" MinWidth="520" />
+                <ColumnDefinition Width="42*" MinWidth="336" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" MinHeight="240" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border x:Name="VideoCard" Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassCardStyle}">
+                <controls:DropVideoCard x:Name="VideoCardBody" />
+            </Border>
+
+            <Border x:Name="RunCard" Grid.Row="1" Grid.Column="0" Style="{StaticResource GlassCardStyle}">
+                <controls:RunCard x:Name="RunCardBody" />
+            </Border>
+
+            <Border x:Name="SettingsCard" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Style="{StaticResource GlassCardStyle}">
+                <ScrollViewer
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+                    <controls:SettingsCard x:Name="SettingsCardBody" />
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- ==================== Журнал (высота 150, скрыт по умолчанию) ==================== -->
+        <controls:JournalPanel
+            x:Name="JournalPanelBody"
+            Grid.Row="3"
+            Height="150"
+            Margin="16,8,16,0"
+            Visibility="Collapsed" />
+
+        <!-- ==================== Нижняя полоса 36 px ==================== -->
+        <Grid
+            x:Name="BottomStrip"
+            Grid.Row="4"
+            Height="36"
+            Margin="16,0,16,8"
+            ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button
+                x:Name="PrepareToolsButton"
+                Grid.Column="0"
+                Content="Скачать инструменты"
+                Style="{StaticResource VbSecondaryButtonStyle}"
+                VerticalAlignment="Center"
+                Visibility="Collapsed"
+                AutomationProperties.Name="Скачать инструменты"
+                ToolTipService.ToolTip="Скачать Real-ESRGAN и RIFE (понадобится при первом запуске)"
+                Click="PrepareToolsButton_Click" />
+
+            <StackPanel
+                x:Name="ToolsStatusChip"
+                Grid.Column="1"
+                Orientation="Horizontal"
+                Spacing="8"
+                VerticalAlignment="Center">
+                <Ellipse
+                    x:Name="ToolsDot"
+                    Width="8"
+                    Height="8"
+                    VerticalAlignment="Center"
+                    Fill="{ThemeResource VbMutedBrush}" />
+                <TextBlock
+                    x:Name="ToolsStatusText"
+                    Text="Инструменты не проверены"
+                    Style="{StaticResource VbCaptionStyle}"
+                    VerticalAlignment="Center" />
+            </StackPanel>
+
+            <Button
+                x:Name="JournalToggle"
+                Grid.Column="3"
+                Style="{StaticResource VbIconButtonStyle}"
+                VerticalAlignment="Center"
+                AutomationProperties.Name="Журнал"
+                ToolTipService.ToolTip="Развернуть журнал"
+                Click="JournalToggle_Click">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon x:Name="JournalChevron" Glyph="&#xE70E;" FontSize="12" />
+                    <TextBlock Text="Журнал" />
+                </StackPanel>
+            </Button>
+
+            <Button
+                x:Name="ClearLogButton"
+                Grid.Column="4"
+                Content="Очистить"
+                Style="{StaticResource VbIconButtonStyle}"
+                VerticalAlignment="Center"
+                IsEnabled="False"
+                AutomationProperties.Name="Очистить журнал"
+                ToolTipService.ToolTip="Очистить журнал"
+                Click="ClearLogButton_Click" />
+        </Grid>
+
+        <!-- ==================== Предупреждение x4 / 8K ==================== -->
+        <TeachingTip
+            x:Name="TeachingTip8K"
+            Grid.Row="2"
+            Title="На RX 570 это надолго"
+            Subtitle="x4 / 8K — десятки часов на минуту видео. Лучше поставить на ночь."
+            CloseButtonContent="Понятно"
+            IsLightDismissEnabled="True"
+            IsOpen="False" />
+    </Grid>
+</Window>

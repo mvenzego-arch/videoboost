@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="VideoBoost.App.Views.Controls.SettingsCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:VideoBoost.App.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Loaded="SettingsCard_Loaded"
+    mc:Ignorable="d">
+
+    <!--
+        Пресеты + 8 строк настроек, все всегда видны (дельта v3.1, Expander убран).
+        Метка — колонка 96, зазор метка↔контроль 12, шаг строк 8.
+    -->
+    <StackPanel Spacing="8">
+
+        <controls:PillChoice
+            x:Name="PresetPills"
+            Stretch="True"
+            AutomationProperties.Name="Пресет"
+            ToolTipService.ToolTip="Пресет задаёт базу — настройки ниже можно менять вручную." />
+
+        <TextBlock
+            x:Name="PresetDescriptionText"
+            Style="{StaticResource VbCaptionStyle}"
+            Margin="0,0,0,4" />
+
+        <Border
+            x:Name="SettingsDivider1"
+            Height="1"
+            Margin="0,4"
+            Background="{ThemeResource VbCardEdgeBrush}" />
+
+        <!-- Масштаб -->
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="96" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Масштаб" Style="{StaticResource VbRowLabelStyle}" />
+            <controls:PillChoice
+                x:Name="ScalePills"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Масштаб"
+                ToolTipService.ToolTip="Насколько увеличим картинку: x2 — 1080p → 4K, x3 — ~5–6K, x4 — 1080p → 8K. «4K авто» и «8K авто» сами подберут масштаб под каждый файл (если источник уже крупный — апскейл пропустят)" />
+        </Grid>
+
+        <!-- Модель -->
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="96" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Модель" Style="{StaticResource VbRowLabelStyle}" />
+            <controls:PillChoice
+                x:Name="ModelPills"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Модель"
+                ToolTipService.ToolTip="Лёгкая модель обрабатывает кадр за секунды, тяжёлая — за десятки секунд, зато детальнее (тяжёлая работает только при x4)" />
+        </Grid>
+
+        <!-- Плавность -->
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="96" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Плавность" Style="{StaticResource VbRowLabelStyle}" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                <ToggleSwitch
+                    x:Name="InterpSwitch"
+                    MinWidth="0"
+                    OnContent=""
+                    OffContent=""
+                    IsOn="True"
+                    VerticalAlignment="Center"
+                    AutomationProperties.Name="Плавность"
+                    ToolTipService.ToolTip="Нейросеть RIFE добавит промежуточные кадры и поднимет частоту кадров" />
+                <controls:PillChoice
+                    x:Name="FpsPills"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    AutomationProperties.Name="Частота кадров"
+                    ToolTipService.ToolTip="До какой частоты кадров дотягивать плавность" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Тип видео -->
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="96" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Тип видео" Style="{StaticResource VbRowLabelStyle}" />
+            <controls:PillChoice
+                x:Name="ContentPills"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Тип видео"
+                ToolTipService.ToolTip="Для аниме модель работает заметно лучше" />
+        </Grid>
+
+        <Border
+            x:Name="SettingsDivider2"
+            Height="1"
+            Margin="0,4"
+            Background="{ThemeResource VbCardEdgeBrush}" />
+
+        <TextBlock
+            x:Name="EncodeGroupHeader"
+            Text="Кодирование и хранение"
+            Style="{StaticResource VbCaptionStyle}"
+            Margin="0,0,0,0" />
+
+        <!-- Кодировщик -->
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="96" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Кодировщик" Style="{StaticResource VbRowLabelStyle}" />
+            <controls:PillChoice
+                x:Name="EncoderPills"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Кодировщик"
+                ToolTipService.ToolTip="GPU (AMD AMF) — быстро; CPU — медленнее, но иногда выручает" />
+        </Grid>
+
+        <!-- Качество -->
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="96" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Качество" Style="{StaticResource VbRowLabelStyle}" />
+            <controls:PillChoice
+                x:Name="QualityPills"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Качество"
+                ToolTipService.ToolTip="Сжатие готового видео: «Макс» — лучший поток, «Скорость» — быстрее" />
+        </Grid>
+
+        <!-- Tile -->
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="96" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Tile" Style="{StaticResource VbRowLabelStyle}" />
+            <controls:PillChoice
+                x:Name="TilePills"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Tile"
+                ToolTipService.ToolTip="Размер куска кадра, обрабатываемого за раз. Меньше tile — меньше видеопамяти (актуально для x4/8K)" />
+        </Grid>
+
+        <!-- Экономить место -->
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="96" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ToggleSwitch
+                x:Name="SaveSpaceSwitch"
+                Grid.Column="0"
+                MinWidth="0"
+                OnContent=""
+                OffContent=""
+                IsOn="True"
+                VerticalAlignment="Center"
+                AutomationProperties.Name="Экономить место: JPEG-промежутки"
+                ToolTipService.ToolTip="Промежуточные кадры в JPEG: экономит десятки ГБ, качество почти не меняется" />
+            <TextBlock
+                Grid.Column="1"
+                Text="Экономить место: JPEG-промежутки"
+                VerticalAlignment="Center"
+                Foreground="{ThemeResource VbTextColorBrush}" />
+        </Grid>
+
+        <!-- Предупреждение про RX 570: сразу после SaveSpaceSwitch (дельта v3.1) -->
+        <TextBlock
+            x:Name="SpeedNoteText"
+            Text="Скорость на RX 570: x2 ~1–2 ч на минуту 1080p; x3 — дольше; x4 (8K) — десятки часов (предупредим)."
+            Style="{StaticResource VbCaptionStyle}" />
+
+    </StackPanel>
+</UserControl>

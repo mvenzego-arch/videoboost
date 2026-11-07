@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="VideoBoost.App.Views.Controls.JournalPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:VideoBoost.App.Converters"
+    xmlns:services="using:VideoBoost.App.Services"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <converters:LogLevelVisibilityConverter x:Key="LevelVisibilityConverter" />
+    </UserControl.Resources>
+
+    <!--
+        Панель журнала 150 px: заголовок + виртуализованный список строк.
+        Цвет строки — из стилей Journal*TextStyle (ThemeResource, обе темы).
+        Пустое состояние — не мёртвый прямоугольник, а пояснение.
+    -->
+    <Border
+        Background="{ThemeResource VbJournalBrush}"
+        BorderBrush="{ThemeResource VbCardEdgeBrush}"
+        BorderThickness="1"
+        CornerRadius="12"
+        Padding="12,8">
+
+        <Grid RowSpacing="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                Text="Журнал"
+                Style="{StaticResource VbSectionTitleStyle}"
+                FontSize="12"
+                VerticalAlignment="Center" />
+
+            <Grid Grid.Row="1">
+                <ListView
+                    x:Name="JournalLines"
+                    SelectionMode="None"
+                    IsItemClickEnabled="False"
+                    IsTabStop="False"
+                    ItemContainerStyle="{StaticResource JournalLineStyle}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="services:LogEntry">
+                            <Grid>
+                                <TextBlock
+                                    Text="{x:Bind DisplayText}"
+                                    Style="{StaticResource JournalInfoTextStyle}"
+                                    Visibility="{x:Bind Level, Converter={StaticResource LevelVisibilityConverter}, ConverterParameter=Info}" />
+                                <TextBlock
+                                    Text="{x:Bind DisplayText}"
+                                    Style="{StaticResource JournalWarningTextStyle}"
+                                    Visibility="{x:Bind Level, Converter={StaticResource LevelVisibilityConverter}, ConverterParameter=Warning}" />
+                                <TextBlock
+                                    Text="{x:Bind DisplayText}"
+                                    Style="{StaticResource JournalErrorTextStyle}"
+                                    Visibility="{x:Bind Level, Converter={StaticResource LevelVisibilityConverter}, ConverterParameter=Error}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <StackPanel
+                    x:Name="JournalEmptyState"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="4">
+                    <FontIcon
+                        Glyph="&#xE7C3;"
+                        FontSize="20"
+                        Foreground="{ThemeResource VbMutedBrush}" />
+                    <TextBlock
+                        Text="Журнал пуст — здесь появятся сообщения о ходе обработки."
+                        Style="{StaticResource VbCaptionStyle}"
+                        MaxWidth="360"
+                        TextAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>
