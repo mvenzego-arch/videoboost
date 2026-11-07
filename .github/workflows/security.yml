@@ -25,7 +25,7 @@ jobs:
             echo "::notice::csproj не найден — CodeQL пропущен (это не красный статус причины C#-структуры нет)"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         if: steps.guard.outputs.skip != 'true'
         with:
           dotnet-version: '8.0.x'
