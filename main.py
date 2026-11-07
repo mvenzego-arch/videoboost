@@ -69,6 +69,15 @@ F_CAPTION = ("Segoe UI", 8, "bold")
 F_BTN = ("Segoe UI", 11, "bold")
 F_BTN_SMALL = ("Segoe UI", 10, "bold")
 
+# ------------------------------------------------------------ отступы
+PAD_H = 12        # гориз. поле внутри всех карточек (замена и 12, и 13)
+GRID_GAP = 12     # зазор колонок и панелей
+ROW_GY = 4        # вертикальный шаг строк настроек
+BTN_GAP = 6       # кнопочный ряд → следующий блок
+BLOCK_GAP = 8     # блок → блок в карточке «3»
+GAP_LBL_CTRL = 10 # метка ↔ управление
+CARD_PAD = 10     # верх карты журнала
+
 VIDEO_TYPES = [
     ("Видео", "*.mp4 *.mkv *.mov *.avi *.webm *.m4v *.ts *.wmv *.flv *.mpg *.mpeg *.3gp"),
     ("Все файлы", "*.*"),
@@ -459,15 +468,34 @@ class PillChoice(tk.Frame):
         self.on_change = on_change
         self.enabled = True
         self.big = big
-        self.h = 44 if big else 28
+        self._font_big = tkfont.Font(family="Segoe UI", size=11,
+                                     weight="bold")
+        self._font_small = tkfont.Font(family="Segoe UI", size=8)
+        self._font_title = (self._font_big if big else
+                            tkfont.Font(family="Segoe UI", size=9,
+                                        weight="bold"))
+        title_ls = self._font_title.metrics("linespace")
+        caption_ls = self._font_small.metrics("linespace")
+        has_caption = any(c for _k, _t, c in self.options)
+        if has_caption:
+            self.h = max(44, title_ls + caption_ls + 12)
+        else:
+            self.h = 44 if big else 28
+        compact = len(self.options) <= 2
         self._canv: dict[str, tk.Canvas] = {}
         self._hover: dict[str, bool] = {o[0]: False for o in self.options}
 
-        for i, (key, _t, _c) in enumerate(self.options):
+        for i, (key, title, _c) in enumerate(self.options):
             canv = tk.Canvas(self, bg=CARD, highlightthickness=0, bd=0,
                              height=self.h, cursor="hand2")
-            canv.grid(row=0, column=i, sticky="ew", padx=0 if i == 0 else 6)
-            self.columnconfigure(i, weight=1)
+            if compact:
+                # D4: ширина по контенту, без растяжения на два варианта
+                canv.configure(width=max(96, min(
+                    150, self._font_title.measure(title) + 30)))
+            canv.grid(row=0, column=i, sticky="ew",
+                      padx=0 if i == 0 else (6, 0))
+            if not compact:
+                self.columnconfigure(i, weight=1)
             canv.bind("<Button-1>", lambda _e, k=key: self._choose(k))
             canv.bind("<Enter>", lambda _e, k=key: self._hover_change(k, True))
             canv.bind("<Leave>", lambda _e, k=key: self._hover_change(k, False))
@@ -487,10 +515,19 @@ class PillChoice(tk.Frame):
         return ("#1d2534", "#12161f", TEXT_2, "#98a2b5")
 
     def _glass_colors(self, key: str) -> tuple:
-        """(top, bottom) пилюли с учётом объёма стекла."""
+        """(top, bottom, gloss, shadex, ring) пилюли по таблице состояний."""
         top, bot, _t, _c = self._palette(key)
-        lift = _mix(top, "#ffffff", 0.16)
-        return lift, bot
+        if not self.enabled:
+            return top, bot, 0.05, 0.06, BORDER_SOFT
+        if key == self.value:
+            hover = self._hover.get(key, False)
+            glass_top = _mix(ACCENT, "#ffffff", 0.22 if hover else 0.16)
+            ring = (ACCENT_HOVER if hover
+                    else _mix(glass_top, "#ffffff", 0.35))
+            return glass_top, ACCENT, 0.34, 0.14, ring
+        if self._hover.get(key):
+            return top, bot, 0.14, 0.10, "#41527a"
+        return top, bot, 0.08, 0.08, BORDER_SOFT
 
     def _redraw(self, key: str, override: Optional[tuple] = None) -> None:
         canv = self._canv.get(key)
@@ -498,7 +535,10 @@ class PillChoice(tk.Frame):
             return
         w = canv.winfo_width()
         if w <= 2:
-            w = 140
+            try:
+                w = int(canv.cget("width"))
+            except (TypeError, ValueError, tk.TclError):
+                w = 140
         h = self.h
         fill, _border, tcol, ccol = self._palette(key)
         if override:
@@ -506,29 +546,27 @@ class PillChoice(tk.Frame):
         option = next(o for o in self.options if o[0] == key)
         title, caption = option[1], option[2]
 
-        top, bottom = self._glass_colors(key)
+        top, bottom, gloss, shadex, ring = self._glass_colors(key)
         if override:
             top = override[0]
             bottom = override[1]
         canv.delete("all")
-        selected = key == self.value and self.enabled
         glass_fill(canv, 1, 1, w - 2, h - 1, min(16, (h - 1) / 2),
-                   top, bottom, gloss=0.34 if selected else 0.16,
-                   shadex=0.14 if selected else 0.08)
-        ring = (_mix(top, "#ffffff", 0.35) if selected
-                else _mix(top, "#000000", 0.30))
+                   top, bottom, gloss=gloss, shadex=shadex)
         round_rect(canv, 1, 1, w - 2, h - 1, r=min(16, (h - 1) / 2),
                    fill="", outline=ring, width=1)
-        big_font = ("Segoe UI", 11, "bold")
-        small_font = ("Segoe UI", 9, "bold")
-        font = big_font if self.big else small_font
+        title_ls = self._font_title.metrics("linespace")
+        caption_ls = self._font_small.metrics("linespace")
+        block = title_ls + (caption_ls + 2 if caption else 0)
+        text_top = max(2, (h - block) // 2)
         shadow = _mix(fill, "#000000", 0.55)
-        cy = h / 2 - (6 if caption else 0)
-        canv.create_text(w / 2, cy + 1.5, text=title, fill=shadow, font=font)
-        canv.create_text(w / 2, cy, text=title, fill=tcol, font=font)
+        canv.create_text(w / 2, text_top + 1.5, text=title, fill=shadow,
+                         font=self._font_title, anchor="n")
+        canv.create_text(w / 2, text_top, text=title, fill=tcol,
+                         font=self._font_title, anchor="n")
         if caption:
-            canv.create_text(w / 2, h / 2 + 11, text=caption, fill=ccol,
-                             font=("Segoe UI", 8, "bold"))
+            canv.create_text(w / 2, text_top + title_ls + 2, text=caption,
+                             fill=ccol, font=self._font_small, anchor="n")
 
     def redraw_all(self) -> None:
         for o in self.options:
@@ -1184,6 +1222,13 @@ class App:
         except Exception:
             self._drop_ready = False
 
+        if not self._drop_ready:
+            try:
+                self.files_hint.configure(
+                    text="Нажмите «Добавить видео…», чтобы выбрать файлы")
+            except tk.TclError:
+                pass
+
         self._append_log("Video Boost 1.2 — 4K/8K, гибкие настройки и «жидкое стекло».")
         self._append_log("Проверяю инструменты...")
         if self._drop_ready:
@@ -1332,7 +1377,7 @@ class App:
 
     def _section_title(self, parent: tk.Misc, number: str, text: str) -> None:
         row = tk.Frame(parent, bg=parent.cget("bg"))
-        row.pack(anchor="w", fill="x", padx=12, pady=(8, 2))
+        row.pack(anchor="w", fill="x", padx=PAD_H, pady=(8, 2))
         self._badge(row, number).pack(side="left")
         tk.Label(row, text="  " + text, bg=parent.cget("bg"), fg=TEXT,
                  font=F_SECTION).pack(side="left")
@@ -1349,7 +1394,7 @@ class App:
         self.header.bind("<Configure>", self._paint_header)
 
         self._header_title = self.header.create_text(
-            22, 22, anchor="w", text="Video Boost",
+            22, 21, anchor="w", text="Video Boost",
             fill="#010208", font=F_TITLE,
         )
         self._header_title_face = self.header.create_text(
@@ -1357,13 +1402,13 @@ class App:
             fill="#f8faff", font=F_TITLE,
         )
         self._header_sub = self.header.create_text(
-            24, 47, anchor="w",
+            22, 47, anchor="w",
             text="Нейросетевое улучшение качества и плавности видео  ·  AMD Radeon RX 570",
             fill="#9aa5c6", font=F_SUB,
         )
         self._header_ver = self.header.create_text(
-            -18, 44, anchor="e", text="v1.2  ·  GPU · 4K/8K",
-            fill="#5d6788", font=("Segoe UI", 10, "bold"),
+            -22, 20, anchor="e", text="v1.2  ·  GPU · 4K/8K",
+            fill=MUTED, font=("Segoe UI", 10, "bold"),
         )
 
         # ---------------- тело ----------------
@@ -1375,7 +1420,7 @@ class App:
         left = self._panel(body)
         left.grid(row=0, column=0, sticky="nsew")
         right = self._panel(body)
-        right.grid(row=0, column=1, sticky="nsew", padx=(12, 0))
+        right.grid(row=0, column=1, sticky="nsew", padx=(GRID_GAP, 0))
 
         # файлы и запуск — в одной карточке: колонки выровнены по высоте,
         # под списком файлов не остаётся пустой «дыры»
@@ -1402,7 +1447,7 @@ class App:
 
         # ---------------- журнал ----------------
         log_panel = self._panel(outer, fill=DARK, border="#1a2233", radius=14)
-        log_panel.pack(fill="both", expand=True, pady=(10, 0))
+        log_panel.pack(fill="both", expand=True, pady=(GRID_GAP, 0))
         self._build_log_card(log_panel.body)
 
         # подгоняем высоту карточек под их содержимое
@@ -1443,7 +1488,7 @@ class App:
                    fill="#1c2547", outline="", tags="glass")
         canvas.tag_lower("glass")
         try:
-            canvas.coords(self._header_ver, w - 18, 44)
+            canvas.coords(self._header_ver, w - 22, 20)
         except Exception:
             pass
 
@@ -1486,13 +1531,13 @@ class App:
         tk.Label(card, text="Можно добавить несколько файлов — "
                             "или перетащите их прямо в это окно",
                  bg=CARD, fg=MUTED, font=("Segoe UI", 9)).pack(
-            anchor="w", padx=12, pady=(0, 6))
+            anchor="w", padx=PAD_H, pady=(0, 6))
 
         list_panel = RoundPanel(card, canvas_bg=CARD, fill=FIELD,
                                 border=BORDER, radius=10,
                                 glass_top="#141a26", glass_bot="#0a0d12",
                                 req_height=120)
-        list_panel.pack(fill="both", expand=True, padx=12)
+        list_panel.pack(fill="both", expand=True, padx=PAD_H)
         list_wrap = list_panel.body
 
         self.file_list = tk.Listbox(
@@ -1509,6 +1554,13 @@ class App:
         self.hscroll.pack(side="bottom", fill="x")
         self.file_list.pack(side="left", fill="both", expand=True)
 
+        # D6: подсказка в пустом списке видео
+        self.files_hint = tk.Label(
+            list_wrap, bg=FIELD, fg=MUTED, font=("Segoe UI", 10),
+            justify="center",
+            text="⤵  Перетащите видео сюда\nили нажмите «Добавить видео…»",
+        )
+
         self.file_menu = tk.Menu(self.root, tearoff=0, font=("Segoe UI", 9),
                                  bg=CARD, fg=TEXT_2, activebackground=ACCENT,
                                  activeforeground="#ffffff", bd=0)
@@ -1522,10 +1574,11 @@ class App:
         self.file_menu.add_command(label="⭕ Очистить список",
                                    command=self._clear_files)
         self.file_list.bind("<Button-3>", self._show_file_menu)
+        self.files_hint.bind("<Button-3>", self._show_file_menu)
         self.file_list.bind("<Delete>", lambda _e: self._remove_selected())
 
         buttons = tk.Frame(card, bg=CARD)
-        buttons.pack(fill="x", padx=12, pady=(6, 2))
+        buttons.pack(fill="x", padx=PAD_H, pady=(BTN_GAP, ROW_GY))
         self.add_btn = self._make_btn(buttons, "secondary", "Добавить видео…",
                                       self._add_files)
         self.add_btn.pack(side="left")
@@ -1538,10 +1591,31 @@ class App:
 
         self.files_count = tk.Label(card, text="Видео не выбраны", bg=CARD,
                                     fg=MUTED, font=("Segoe UI", 9), anchor="w")
-        self.files_count.pack(fill="x", padx=13, pady=(3, 8))
+        self.files_count.pack(fill="x", padx=PAD_H, pady=(ROW_GY, 8))
+
+        self._update_drop_hint()
+
+    def _update_drop_hint(self) -> None:
+        """D6: подсказка видна только в пустом списке видео."""
+        try:
+            if self.files:
+                self.files_hint.place_forget()
+            else:
+                self.files_hint.place(in_=self.file_list, relx=0.5,
+                                      rely=0.5, anchor="center")
+        except tk.TclError:
+            pass
 
     def _build_settings_card(self, card: tk.Frame) -> None:
         self._section_title(card, "2", "Настройки")
+
+        # D2: единая ось меток в пикселях вместо width=11 в символах
+        label_font = tkfont.Font(font=F_BODY_BOLD)
+        self._label_px = max(
+            label_font.measure(t) for t in
+            ("Масштаб", "Модель", "Плавность", "Тип видео",
+             "Кодировщик", "Качество", "Tile")) + 6
+        self._label_h = label_font.metrics("linespace")
 
         prefs_preset = self._prefs.get("preset", "balanced")
         if prefs_preset not in [o[0] for o in PRESET_PILLS]:
@@ -1550,14 +1624,14 @@ class App:
             card, PRESET_PILLS, prefs_preset,
             on_change=lambda _k: self._on_preset_changed(),
         )
-        self.preset_choice.pack(fill="x", padx=12)
+        self.preset_choice.pack(fill="x", padx=PAD_H)
         Tooltip(self.preset_choice,
                 "Пресет задаёт базу — настройки ниже можно менять вручную.")
 
         self.preset_desc = tk.Label(card, text="", bg=CARD, fg=MUTED,
                                     font=F_SMALL, justify="left",
                                     wraplength=340, anchor="w")
-        self.preset_desc.pack(fill="x", padx=13, pady=(5, 2))
+        self.preset_desc.pack(fill="x", padx=PAD_H, pady=(ROW_GY, 2))
 
         self._make_separator(card)
 
@@ -1566,38 +1640,45 @@ class App:
         self.scale_choice = PillChoice(
             scale_row, SCALE_PILLS, self._pref_in("scale", SCALE_PILLS, "preset"),
             on_change=lambda _k: self._on_manual_change(), big=False)
-        self.scale_choice.pack(side="left", fill="x", expand=True, padx=(6, 0))
+        self.scale_choice.pack(side="left", fill="x", expand=True,
+                               padx=(GAP_LBL_CTRL, 0))
         Tooltip(self.scale_choice, TOOLTIPS["scale"])
 
         model_row = self._settings_row(card, "Модель")
         self.model_choice = PillChoice(
             model_row, MODEL_PILLS, self._pref_in("model", MODEL_PILLS, "auto"),
             on_change=lambda _k: self._on_manual_change(), big=False)
-        self.model_choice.pack(side="left", fill="x", expand=True, padx=(6, 0))
+        self.model_choice.pack(side="left", fill="x", expand=True,
+                               padx=(GAP_LBL_CTRL, 0))
         Tooltip(self.model_choice, TOOLTIPS["model"])
 
         interp_row = tk.Frame(card, bg=CARD)
-        interp_row.pack(fill="x", padx=12, pady=(3, 0))
-        tk.Label(interp_row, text="Плавность", bg=CARD, fg=TEXT_2,
-                 font=F_BODY_BOLD, width=11, anchor="w").pack(side="left")
+        interp_row.pack(fill="x", padx=PAD_H, pady=(0, ROW_GY))
+        interp_label = tk.Frame(interp_row, bg=CARD, width=self._label_px,
+                                height=self._label_h)
+        interp_label.pack(side="left")
+        interp_label.pack_propagate(False)
+        tk.Label(interp_label, text="Плавность", bg=CARD, fg=TEXT_2,
+                 font=F_BODY_BOLD, anchor="w", bd=0, highlightthickness=0,
+                 padx=0, pady=0).pack(fill="both", expand=True)
         interp_on = (bool(self._prefs.get("interpolate", True))
                      if self.prefs_loaded else True)
         self.interp_var = tk.BooleanVar(value=interp_on)
         self.interp_switch = Switch(interp_row, self.interp_var,
                                     on_change=self._on_interp_changed)
-        self.interp_switch.pack(side="left")
+        self.interp_switch.pack(side="left", padx=(GAP_LBL_CTRL, 0))
         self._interp_user_changed = self.prefs_loaded and ("interpolate" in self._prefs)
         self.fps_choice = PillChoice(
             interp_row, FPS_PILLS, self._pref_in("fps", FPS_PILLS, "60"),
             on_change=lambda _k: self._on_manual_change(), big=False)
-        self.fps_choice.pack(side="left", fill="x", expand=True, padx=(12, 0))
+        self.fps_choice.pack(side="left", padx=(12, 0))
         Tooltip(self.fps_choice, TOOLTIPS["fps"])
 
         content_row = self._settings_row(card, "Тип видео")
         self.content_choice = PillChoice(
             content_row, CONTENT_PILLS, self._pref_in("content", CONTENT_PILLS, "general"),
             on_change=lambda _k: self._on_manual_change(), big=False)
-        self.content_choice.pack(side="left", fill="x", expand=True, padx=(6, 0))
+        self.content_choice.pack(side="left", padx=(GAP_LBL_CTRL, 0))
         Tooltip(self.content_choice, TOOLTIPS["content"])
 
         self._make_separator(card)
@@ -1607,21 +1688,24 @@ class App:
         self.encoder_choice = PillChoice(
             enc_row, ENCODER_PILLS, self._pref_in("encoder", ENCODER_PILLS, "preset"),
             on_change=lambda _k: self._on_manual_change(), big=False)
-        self.encoder_choice.pack(side="left", fill="x", expand=True, padx=(6, 0))
+        self.encoder_choice.pack(side="left", fill="x", expand=True,
+                                 padx=(GAP_LBL_CTRL, 0))
         Tooltip(self.encoder_choice, TOOLTIPS["encoder"])
 
         qual_row = self._settings_row(card, "Качество")
         self.quality_choice = PillChoice(
             qual_row, QUALITY_PILLS, self._pref_in("quality", QUALITY_PILLS, "preset"),
             on_change=lambda _k: self._on_manual_change(), big=False)
-        self.quality_choice.pack(side="left", fill="x", expand=True, padx=(6, 0))
+        self.quality_choice.pack(side="left", fill="x", expand=True,
+                                 padx=(GAP_LBL_CTRL, 0))
         Tooltip(self.quality_choice, TOOLTIPS["quality"])
 
         tile_row = self._settings_row(card, "Tile")
         self.tile_choice = PillChoice(
             tile_row, TILE_PILLS, self._pref_in("tile", TILE_PILLS, "preset"),
             on_change=lambda _k: self._on_manual_change(), big=False)
-        self.tile_choice.pack(side="left", fill="x", expand=True, padx=(6, 0))
+        self.tile_choice.pack(side="left", fill="x", expand=True,
+                              padx=(GAP_LBL_CTRL, 0))
         Tooltip(self.tile_choice, TOOLTIPS["tile"])
 
         # --- место на диске ---
@@ -1629,10 +1713,12 @@ class App:
                     if self.prefs_loaded else True)
         self.space_var = tk.BooleanVar(value=space_on)
         row2 = tk.Frame(card, bg=CARD)
-        row2.pack(fill="x", padx=12, pady=(6, 0))
+        row2.pack(fill="x", padx=PAD_H, pady=(0, ROW_GY))
         self.space_switch = Switch(row2, self.space_var,
                                    on_change=self._on_manual_change)
-        self.space_switch.pack(side="left")
+        tk.Frame(row2, bg=CARD, width=self._label_px,
+                 height=self._label_h).pack(side="left")
+        self.space_switch.pack(side="left", padx=(GAP_LBL_CTRL, 0))
         tk.Label(row2, text="Экономить место: JPEG-промежутки",
                  bg=CARD, fg=TEXT, font=F_BODY).pack(
             side="left", padx=(10, 0))
@@ -1645,13 +1731,13 @@ class App:
             bg=CARD, fg=MUTED, font=F_SMALL, justify="left",
             wraplength=340, anchor="w",
         )
-        note.pack(fill="x", padx=13, pady=(3, 4))
+        note.pack(fill="x", padx=PAD_H, pady=(ROW_GY, ROW_GY))
 
         # перенос описаний подстраиваем под фактическую ширину карточки,
         # иначе при смене размера окна остаётся лишняя пустая строка
         def _fit_wrap(_event=None) -> None:
             try:
-                width = card.winfo_width() - 26
+                width = card.winfo_width() - 24
             except Exception:
                 return
             if width < 240:
@@ -1672,18 +1758,22 @@ class App:
         else:
             self._on_preset_changed(animate=False)
 
-    def _settings_row(self, card: tk.Frame, label_text: str,
-                      width: int = 11) -> tk.Frame:
+    def _settings_row(self, card: tk.Frame, label_text: str) -> tk.Frame:
         """Строка «название — управление» в карточке настроек; возвращает row."""
         row = tk.Frame(card, bg=CARD)
-        row.pack(fill="x", padx=12, pady=(2, 0))
-        tk.Label(row, text=label_text, bg=CARD, fg=TEXT_2,
-                 font=F_BODY_BOLD, width=width, anchor="w").pack(side="left")
+        row.pack(fill="x", padx=PAD_H, pady=(0, ROW_GY))
+        label_wrap = tk.Frame(row, bg=CARD, width=self._label_px,
+                              height=self._label_h)
+        label_wrap.pack(side="left")
+        label_wrap.pack_propagate(False)
+        tk.Label(label_wrap, text=label_text, bg=CARD, fg=TEXT_2,
+                 font=F_BODY_BOLD, anchor="w", bd=0, highlightthickness=0,
+                 padx=0, pady=0).pack(fill="both", expand=True)
         return row
 
-    def _make_separator(self, card: tk.Frame, pady: tuple = (5, 2)) -> None:
+    def _make_separator(self, card: tk.Frame, pady: tuple = (6, ROW_GY)) -> None:
         sep = tk.Frame(card, bg=BORDER, height=1)
-        sep.pack(fill="x", padx=12, pady=pady)
+        sep.pack(fill="x", padx=PAD_H, pady=pady)
 
     def _pref_in(self, key: str, pills: list, default: str) -> str:
         value = self._prefs.get(key, default)
@@ -1722,11 +1812,11 @@ class App:
             self._flash(self.preset_desc, "fg", "#33405a", MUTED)
 
     def _build_start_card(self, card: tk.Frame) -> None:
-        self._make_separator(card, pady=(8, 2))
+        self._make_separator(card, pady=(BLOCK_GAP, ROW_GY))
         self._section_title(card, "3", "Запуск")
 
         row = tk.Frame(card, bg=CARD)
-        row.pack(fill="x", padx=12, pady=(6, 0))
+        row.pack(fill="x", padx=PAD_H, pady=(BTN_GAP, 0))
 
         self.start_btn = self._make_btn(row, "accent", "▶  Начать обработку",
                                         self._start, tooltip=TOOLTIPS["start"])
@@ -1745,19 +1835,19 @@ class App:
 
         # прогресс: спиннер + полоса + проценты
         prow = tk.Frame(card, bg=CARD)
-        prow.pack(fill="x", padx=12, pady=(8, 0))
+        prow.pack(fill="x", padx=PAD_H, pady=(BLOCK_GAP, 0))
 
         self.spinner = tk.Canvas(prow, width=18, height=18, bg=CARD,
                                  highlightthickness=0, bd=0)
         self._spin_arc = self.spinner.create_arc(
             1, 1, 17, 17, start=0, extent=95, style="arc",
-            outline=ACCENT_2, width=3,
+            outline="", width=3,
         )
-        self.spinner.pack(side="left")
-        self.spinner.pack_forget()
+        # D5: слот спиннера постоянный — пакуем один раз
+        self.spinner.pack(side="left", padx=(0, 6))
 
         self.progress = BoostBar(prow)
-        self.progress.pack(side="left", fill="x", expand=True, padx=(6, 8))
+        self.progress.pack(side="left", fill="x", expand=True, padx=(0, 8))
 
         self.pct_label = tk.Label(prow, text="0%", bg=CARD, fg=TEXT_2,
                                   font=F_BODY_BOLD, width=5,
@@ -1767,14 +1857,14 @@ class App:
         self.status_var = tk.StringVar(value="Готов к работе")
         self.status_label = tk.Label(card, textvariable=self.status_var, bg=CARD,
                                      fg=MUTED, font=F_BODY, anchor="w")
-        self.status_label.pack(fill="x", padx=13, pady=(0, 6))
+        self.status_label.pack(fill="x", padx=PAD_H, pady=(0, 6))
 
         self.root.bind("<Return>", self._on_return)
         self.root.bind("<Escape>", self._on_escape)
 
     def _build_log_card(self, card: tk.Frame) -> None:
         title_row = tk.Frame(card, bg=CARD)
-        title_row.pack(anchor="w", fill="x", padx=12, pady=(10, 4))
+        title_row.pack(anchor="w", fill="x", padx=CARD_PAD, pady=(10, 4))
         self._badge(title_row, "≡").pack(side="left")
         tk.Label(title_row, text="  Журнал", bg=CARD, fg=TEXT,
                  font=F_SECTION).pack(side="left")
@@ -1787,7 +1877,7 @@ class App:
                                border="#1a2233", radius=12,
                                glass_top=DARK_TOP, glass_bot=DARK,
                                req_height=150)
-        log_panel.pack(fill="both", expand=True, padx=12, pady=(0, 10))
+        log_panel.pack(fill="both", expand=True, padx=PAD_H, pady=(GRID_GAP, 0))
         log_wrap = log_panel.body
 
         self.log_text = tk.Text(
@@ -1800,6 +1890,12 @@ class App:
         self.log_scroll.pack(side="right", fill="y")
         self.log_text.pack(side="left", fill="both", expand=True)
 
+        # D7: заглушка журнала — только после «Очистить»
+        self.log_hint = tk.Label(
+            log_wrap, bg=DARK, fg="#4d5666", font=("Segoe UI", 9),
+            text="≡  Журнал пуст — здесь появятся сообщения обработки",
+        )
+
         self.log_text.tag_configure("muted", foreground="#5b6472")
         self.log_text.tag_configure("err", foreground="#fca5a5")
         self.log_text.tag_configure("warn", foreground="#fcd34d")
@@ -1811,6 +1907,8 @@ class App:
             self.log_text.configure(state="normal")
             self.log_text.delete("1.0", "end")
             self.log_text.configure(state="disabled")
+            self.log_hint.place(in_=self.log_text, relx=0.5, rely=0.5,
+                                anchor="center")
         except tk.TclError:
             pass
 
@@ -1872,20 +1970,20 @@ class App:
 
     def _set_spinner(self, on: bool) -> None:
         try:
-            if on:
-                self.spinner.pack(side="left")
-            else:
-                if self._spin_job:
-                    try:
-                        self.root.after_cancel(self._spin_job)
-                    except Exception:
-                        pass
-                    self._spin_job = None
-                self.spinner.pack_forget()
+            self.spinner.itemconfigure(
+                self._spin_arc, outline=ACCENT_2 if on else "")
         except tk.TclError:
             return
-        if on and self._spin_job is None:
-            self._spin_tick()
+        if on:
+            if self._spin_job is None:
+                self._spin_tick()
+        else:
+            if self._spin_job:
+                try:
+                    self.root.after_cancel(self._spin_job)
+                except Exception:
+                    pass
+                self._spin_job = None
 
     def _spin_tick(self) -> None:
         self._spin_angle = (self._spin_angle + 6) % 360
@@ -2010,6 +2108,7 @@ class App:
         else:
             self.files_count.configure(text="Видео не выбраны", fg=MUTED)
         self._refresh_start_button_text()
+        self._update_drop_hint()
 
     def _refresh_start_button_text(self) -> None:
         if self.running:
@@ -2359,6 +2458,11 @@ class App:
 
         self.log_text.insert("end", timestamp, "muted")
         self.log_text.insert("end", message.rstrip() + "\n", tag)
+
+        try:
+            self.log_hint.place_forget()
+        except (tk.TclError, AttributeError):
+            pass
 
         try:
             lines = int(self.log_text.index("end-1c").split(".")[0])
