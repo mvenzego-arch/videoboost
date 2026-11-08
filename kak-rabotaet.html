@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- SEO: домен — GitHub Pages проекта mvenzego-arch/videoboost (ветка site). -->
+  <title>Как работает VideoBoost: 5 шагов и ответы в FAQ</title>
+  <meta name="description" content="Как VideoBoost улучшает видео: 5 понятных шагов от выбора файлов до готового ролика. Плюс честные ответы на частые вопросы в FAQ.">
+  <link rel="canonical" href="https://mvenzego-arch.github.io/videoboost/kak-rabotaet.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VideoBoost">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:title" content="Как работает VideoBoost: 5 шагов и ответы в FAQ">
+  <meta property="og:description" content="Как VideoBoost улучшает видео: 5 понятных шагов от выбора файлов до готового ролика. Плюс честные ответы на частые вопросы в FAQ.">
+  <meta property="og:url" content="https://mvenzego-arch.github.io/videoboost/kak-rabotaet.html">
+  <!-- og:image — та же обложка 1200x630, что и на index.html -->
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon/favicon.svg">
+  <link rel="stylesheet" href="./css/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "VideoBoost платный?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Нет, программа полностью бесплатная: без подписок, регистраций и скрытых платежей."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Нужен ли интернет для обработки видео?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Интернет не нужен: обработка идёт локально, файлы не загружаются в облако. Real-ESRGAN, RIFE и FFmpeg уже входят в комплект."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Подойдёт ли моя Windows?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Нужна Windows 10 или 11, обязательно 64-битная редакция."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Как установить VideoBoost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Установки нет: программа портативная. Распакуйте архив в любую папку и запустите. Есть полная сборка (~86 МБ) и компактная (~11 МБ)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Какие пресеты качества есть?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Три пресета — «Быстро», «Баланс», «Максимально» — плюс тонкая ручная настройка параметров, если нужен полный контроль."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Хватит ли слабой видеокарты?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Достаточно от 4 ГБ видеопамяти: обработка идёт на GPU. Подойдёт даже старая карта уровня RX 570."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./index.html" aria-label="VideoBoost — на главную">
+        <svg class="brand-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="brand-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="var(--accent)"/>
+              <stop offset="1" stop-color="var(--accent-2)"/>
+            </linearGradient>
+          </defs>
+          <rect x="1" y="1" width="22" height="22" rx="6" fill="url(#brand-grad)"/>
+          <path d="M13.5 5 7.5 13h3.9l-1 6 6.6-8.5h-4l.5-5.5Z" fill="var(--bg)"/>
+        </svg>
+        <span>VideoBoost</span>
+      </a>
+      <nav class="site-nav" aria-label="Основная навигация">
+        <ul>
+          <li><a href="./kak-rabotaet.html" aria-current="page">Как работает</a></li>
+          <li><a href="./skachat.html">Скачать</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="page-hero" aria-labelledby="page-title">
+      <div class="container">
+        <h1 id="page-title">Как работает VideoBoost</h1>
+        <p class="lede">VideoBoost превращает исходный файл в MP4 за пять шагов, и все идут по кнопке «Начать». Указываете исходник и пресет, остальное программа делает сама. И всё на вашем компьютере: файлы никуда не загружаются.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="steps-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="steps-title">Пять шагов — от файла до готового MP4</h2>
+        </div>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-num gradient-text" aria-hidden="true">1</span>
+            <div class="step-body">
+              <h3>Анализ файла</h3>
+              <p>ffprobe изучает исходник: длительность, частоту кадров, звук, HDR-разметку.</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step-num gradient-text" aria-hidden="true">2</span>
+            <div class="step-body">
+              <h3>Извлечение кадров</h3>
+              <p>Видео разворачивается в кадры PNG или JPEG.</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step-num gradient-text" aria-hidden="true">3</span>
+            <div class="step-body">
+              <h3>Апскейл до 4K</h3>
+              <p>Real-ESRGAN увеличивает каждый кадр на вашей видеокарте; достаточно 4 ГБ памяти.</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step-num gradient-text" aria-hidden="true">4</span>
+            <div class="step-body">
+              <h3>Плавность RIFE</h3>
+              <p>RIFE достраивает недостающие кадры: 60, 120, 240 или 340 FPS либо своё значение 48–340.</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step-num gradient-text" aria-hidden="true">5</span>
+            <div class="step-body">
+              <h3>Сборка MP4</h3>
+              <p>Кадры собираются в MP4: H.264 или H.265, у владельцев AMD — аппаратный AMF. Звук — из оригинала.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section--tight" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="faq-title">Частые вопросы</h2>
+        </div>
+        <div class="faq">
+          <details open>
+            <summary>Программа платная?<span class="faq-marker" aria-hidden="true"></span></summary>
+            <p>Нет, VideoBoost бесплатная: ни триала, ни «расширенной версии».</p>
+          </details>
+          <details>
+            <summary>Нужен ли интернет?<span class="faq-marker" aria-hidden="true"></span></summary>
+            <p>Нет: FFmpeg, Real-ESRGAN и RIFE в комплекте, файлы в сеть не уходят.</p>
+          </details>
+          <details>
+            <summary>Какая Windows нужна?<span class="faq-marker" aria-hidden="true"></span></summary>
+            <p>Windows 10 или 11, 64-бит. Полной сборке больше ничего не нужно, лёгкой — .NET 8.</p>
+          </details>
+          <details>
+            <summary>Нужно ли устанавливать?<span class="faq-marker" aria-hidden="true"></span></summary>
+            <p>Нет, портативная: распакуйте архив и запускайте. Удаление — просто удалить папку.</p>
+          </details>
+          <details>
+            <summary>Какие пресеты?<span class="faq-marker" aria-hidden="true"></span></summary>
+            <p>«Быстро», «Баланс», «Максимально» плюс ручной режим с тонкой настройкой для опытных.</p>
+          </details>
+          <details>
+            <summary>Вытянет ли слабая карта?<span class="faq-marker" aria-hidden="true"></span></summary>
+            <p>Апскейлу хватает 4 ГБ памяти, работает даже старая RX 570. «Подобрать под железо» подберёт режим, для скромных карт есть безопасный режим.</p>
+          </details>
+        </div>
+        <p class="section-action"><a class="btn btn-primary" href="./skachat.html">Скачать VideoBoost для Windows</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-main">
+        <a class="brand brand--footer" href="./index.html" aria-label="VideoBoost — на главную">
+          <svg class="brand-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="footer-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="var(--accent)"/>
+                <stop offset="1" stop-color="var(--accent-2)"/>
+              </linearGradient>
+            </defs>
+            <rect x="1" y="1" width="22" height="22" rx="6" fill="url(#footer-grad)"/>
+            <path d="M13.5 5 7.5 13h3.9l-1 6 6.6-8.5h-4l.5-5.5Z" fill="var(--bg)"/>
+          </svg>
+          <span>VideoBoost</span>
+        </a>
+        <nav class="footer-nav" aria-label="Навигация в подвале">
+          <ul>
+            <li><a href="./index.html">Главная</a></li>
+            <li><a href="./kak-rabotaet.html" aria-current="page">Как работает</a></li>
+            <li><a href="./skachat.html">Скачать</a></li>
+          </ul>
+        </nav>
+      </div>
+      <p class="footer-note">VideoBoost работает офлайн: нейросети и FFmpeg в комплекте, ваши файлы не покидают компьютер</p>
+      <div class="footer-bottom">
+        <p>© <span id="year">2026</span> VideoBoost</p>
+        <a class="to-top" href="#top">Наверх <span aria-hidden="true">↑</span></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./js/main.js" defer></script>
+</body>
+</html>

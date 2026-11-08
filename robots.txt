@@ -1,0 +1,8 @@
+# robots.txt — сайт VideoBoost
+# Домен — GitHub Pages проекта mvenzego-arch/videoboost (ветка site).
+
+User-agent: *
+Allow: /
+Disallow: /tools/
+
+Sitemap: https://mvenzego-arch.github.io/videoboost/sitemap.xml
