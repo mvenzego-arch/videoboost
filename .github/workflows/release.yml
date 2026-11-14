@@ -40,7 +40,7 @@ jobs:
           path: VideoBoost-win-x64.zip
       - name: Attach to GitHub Release
         if: steps.guard.outputs.skip != 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: VideoBoost-win-x64.zip
           generate_release_notes: true
